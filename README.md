@@ -203,3 +203,20 @@ python scripts/tools/upload_weights.py
 If the upload is interrupted, just rerun the same command — already-uploaded files are skipped via SHA comparison.
 
 **5. Verify.** Browse to https://huggingface.co/2bidoubi/SPARK and confirm `PartCrafter/`, `TripoSG/`, `RMBG-1.4/` all appear.
+
+## 🙏 Acknowledgement
+
+Thanks to Yongfei She for organizing the code for open source release.
+
+## 📝 Citation
+
+If you find SPARK useful for your research, please cite:
+
+```bibtex
+@article{he2025spark,
+  title={SPARK: Sim-ready Part-level Articulated Reconstruction with VLM Knowledge},
+  author={He, Yumeng and Jiang, Ying and Lu, Jiayin and Yang, Yin and Jiang, Chenfanfu},
+  journal={arXiv preprint arXiv:2512.01629},
+  year={2025}
+}
+```

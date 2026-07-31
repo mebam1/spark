@@ -1,5 +1,6 @@
 __pycache__
 .env
+.claude
 wandb
 output
 preprocessed_data*

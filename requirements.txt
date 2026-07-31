@@ -1,0 +1,53 @@
+# PyTorch (install with the matching CUDA wheel index, see README)
+torch==2.5.1
+torchvision==0.20.1
+# torch-cluster needs the matching torch+CUDA wheel:
+#   pip install torch-cluster -f https://data.pyg.org/whl/torch-2.5.1+cu124.html
+torch-cluster==1.6.3
+# pytorch3d is installed from source, see README
+
+# Diffusion / training
+accelerate==1.9.0
+diffusers==0.34.0
+transformers==4.55.0
+huggingface-hub==0.34.3
+safetensors==0.6.1
+peft==0.17.0
+deepspeed==0.17.4
+wandb==0.21.0
+
+# Numerical / scientific
+numpy<2.0
+scipy>=1.13,<1.16
+scikit-image>=0.22
+scikit-learn>=1.4
+pandas>=2.0
+einops==0.8.1
+jaxtyping==0.3.2
+omegaconf==2.3.0
+
+# 3D / mesh / rendering
+trimesh==4.7.1
+pyrender==0.1.45
+open3d==0.19.0
+PyOpenGL==3.1.0
+pygltflib
+
+# Image / video
+Pillow==11.0.0
+opencv-python==4.11.0.86
+imageio==2.37.0
+imageio-ffmpeg==0.6.0
+
+# Metrics
+lpips
+
+# VLM / texture APIs
+openai==2.6.1
+google-genai==1.46.0
+requests==2.32.4
+
+# Misc
+tqdm==4.67.1
+python-dotenv==1.1.1
+gradio>=5.29.0,<6.0.0

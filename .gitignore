@@ -1,0 +1,13 @@
+__pycache__
+.env
+wandb
+output
+preprocessed_data*
+pretrained_weights
+results
+selfdefine
+mesh
+output_partcrafter
+demo/tmp
+demo/*.zip
+.gradio/

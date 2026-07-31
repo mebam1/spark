@@ -1,0 +1,571 @@
+================================================================================
+PartNet-Mobility Dataset Statistics
+================================================================================
+
+Total Categories: 46
+Total Objects: 2347
+
+================================================================================
+Per-Category Statistics
+================================================================================
+
+Category: Bottle
+--------------------------------------------------------------------------------
+  Number of Objects: 57
+  Number of Objects within 8 parts: 57
+  Number of Objects within 16 parts: 57
+  Min Parts: 2
+  Average Parts: 2.00
+  Max Parts: 2
+  Unique Part Names (3):
+    ['bottle_body', 'rotation_lid', 'translation_lid']
+
+Category: Box
+--------------------------------------------------------------------------------
+  Number of Objects: 28
+  Number of Objects within 8 parts: 28
+  Number of Objects within 16 parts: 28
+  Min Parts: 2
+  Average Parts: 3.36
+  Max Parts: 7
+  Unique Part Names (5):
+    ['box_body', 'drawer', 'handle', 'lock', 'rotation_lid']
+
+Category: Bucket
+--------------------------------------------------------------------------------
+  Number of Objects: 36
+  Number of Objects within 8 parts: 36
+  Number of Objects within 16 parts: 36
+  Min Parts: 2
+  Average Parts: 2.06
+  Max Parts: 3
+  Unique Part Names (2):
+    ['bucket_body', 'handle']
+
+Category: Camera
+--------------------------------------------------------------------------------
+  Number of Objects: 37
+  Number of Objects within 8 parts: 22
+  Number of Objects within 16 parts: 30
+  Min Parts: 3
+  Average Parts: 9.22
+  Max Parts: 27
+  Unique Part Names (7):
+    ['button', 'camera_body', 'knob', 'lens', 'lid', 'slider', 'toggle_button']
+
+Category: Cart
+--------------------------------------------------------------------------------
+  Number of Objects: 61
+  Number of Objects within 8 parts: 60
+  Number of Objects within 16 parts: 61
+  Min Parts: 2
+  Average Parts: 3.80
+  Max Parts: 9
+  Unique Part Names (4):
+    ['cart_body', 'caster', 'steering_wheel', 'wheel']
+
+Category: Chair
+--------------------------------------------------------------------------------
+  Number of Objects: 81
+  Number of Objects within 8 parts: 3
+  Number of Objects within 16 parts: 33
+  Min Parts: 3
+  Average Parts: 15.47
+  Max Parts: 20
+  Unique Part Names (7):
+    ['caster', 'chair_leg', 'knob', 'lever', 'rotation_body', 'seat', 'wheel']
+
+Category: Clock
+--------------------------------------------------------------------------------
+  Number of Objects: 31
+  Number of Objects within 8 parts: 31
+  Number of Objects within 16 parts: 31
+  Min Parts: 2
+  Average Parts: 3.42
+  Max Parts: 5
+  Unique Part Names (3):
+    ['alarm_ring', 'clock_body', 'hand']
+
+Category: CoffeeMachine
+--------------------------------------------------------------------------------
+  Number of Objects: 54
+  Number of Objects within 8 parts: 39
+  Number of Objects within 16 parts: 54
+  Min Parts: 2
+  Average Parts: 6.76
+  Max Parts: 16
+  Unique Part Names (14):
+    ['button', 'coffee_machine_body', 'container', 'knob', 'lever', 'lid', 'portafilter', 'rotation_container', 'rotation_lid', 'rotation_slider', 'rotor', 'slider', 'toggle_button', 'wheel']
+
+Category: Dishwasher
+--------------------------------------------------------------------------------
+  Number of Objects: 48
+  Number of Objects within 8 parts: 48
+  Number of Objects within 16 parts: 48
+  Min Parts: 2
+  Average Parts: 2.33
+  Max Parts: 6
+  Unique Part Names (5):
+    ['button', 'dishwasher_body', 'knob', 'rotation_door', 'shelf']
+
+Category: Dispenser
+--------------------------------------------------------------------------------
+  Number of Objects: 57
+  Number of Objects within 8 parts: 57
+  Number of Objects within 16 parts: 57
+  Min Parts: 2
+  Average Parts: 2.84
+  Max Parts: 4
+  Unique Part Names (5):
+    ['dispenser_body', 'handle', 'lid', 'nose', 'pressing_lid']
+
+Category: Display
+--------------------------------------------------------------------------------
+  Number of Objects: 37
+  Number of Objects within 8 parts: 37
+  Number of Objects within 16 parts: 37
+  Min Parts: 2
+  Average Parts: 2.51
+  Max Parts: 8
+  Unique Part Names (4):
+    ['button', 'display_base', 'rotation_screen', 'translation_screen']
+
+Category: Door
+--------------------------------------------------------------------------------
+  Number of Objects: 36
+  Number of Objects within 8 parts: 36
+  Number of Objects within 16 parts: 36
+  Min Parts: 2
+  Average Parts: 2.86
+  Max Parts: 5
+  Unique Part Names (3):
+    ['door_frame', 'rotation_door', 'translation_door']
+
+Category: Eyeglasses
+--------------------------------------------------------------------------------
+  Number of Objects: 65
+  Number of Objects within 8 parts: 65
+  Number of Objects within 16 parts: 65
+  Min Parts: 3
+  Average Parts: 3.00
+  Max Parts: 3
+  Unique Part Names (2):
+    ['glasses_body', 'leg']
+
+Category: Fan
+--------------------------------------------------------------------------------
+  Number of Objects: 81
+  Number of Objects within 8 parts: 81
+  Number of Objects within 16 parts: 81
+  Min Parts: 2
+  Average Parts: 2.12
+  Max Parts: 4
+  Unique Part Names (4):
+    ['button', 'fan_frame', 'rotor', 'slider']
+
+Category: Faucet
+--------------------------------------------------------------------------------
+  Number of Objects: 84
+  Number of Objects within 8 parts: 84
+  Number of Objects within 16 parts: 84
+  Min Parts: 2
+  Average Parts: 2.71
+  Max Parts: 4
+  Unique Part Names (4):
+    ['faucet_base', 'spout', 'stem', 'switch']
+
+Category: FoldingChair
+--------------------------------------------------------------------------------
+  Number of Objects: 26
+  Number of Objects within 8 parts: 26
+  Number of Objects within 16 parts: 26
+  Min Parts: 2
+  Average Parts: 2.23
+  Max Parts: 3
+  Unique Part Names (2):
+    ['leg', 'seat']
+
+Category: Globe
+--------------------------------------------------------------------------------
+  Number of Objects: 61
+  Number of Objects within 8 parts: 61
+  Number of Objects within 16 parts: 61
+  Min Parts: 2
+  Average Parts: 2.13
+  Max Parts: 4
+  Unique Part Names (3):
+    ['circle', 'globe_frame', 'sphere']
+
+Category: Kettle
+--------------------------------------------------------------------------------
+  Number of Objects: 29
+  Number of Objects within 8 parts: 29
+  Number of Objects within 16 parts: 29
+  Min Parts: 2
+  Average Parts: 2.28
+  Max Parts: 3
+  Unique Part Names (6):
+    ['button', 'handle', 'kettle_body', 'lever', 'lid', 'rotation_lid']
+
+Category: Keyboard
+--------------------------------------------------------------------------------
+  Number of Objects: 37
+  Number of Objects within 8 parts: 0
+  Number of Objects within 16 parts: 0
+  Min Parts: 25
+  Average Parts: 97.11
+  Max Parts: 116
+  Unique Part Names (3):
+    ['key', 'keyboard_base', 'tilt_leg']
+
+Category: KitchenPot
+--------------------------------------------------------------------------------
+  Number of Objects: 25
+  Number of Objects within 8 parts: 25
+  Number of Objects within 16 parts: 25
+  Min Parts: 2
+  Average Parts: 2.12
+  Max Parts: 4
+  Unique Part Names (4):
+    ['button', 'lid', 'pot_body', 'slider']
+
+Category: Knife
+--------------------------------------------------------------------------------
+  Number of Objects: 44
+  Number of Objects within 8 parts: 40
+  Number of Objects within 16 parts: 44
+  Min Parts: 2
+  Average Parts: 3.39
+  Max Parts: 11
+  Unique Part Names (3):
+    ['knife_body', 'rotation_blade', 'translation_blade']
+
+Category: Lamp
+--------------------------------------------------------------------------------
+  Number of Objects: 45
+  Number of Objects within 8 parts: 45
+  Number of Objects within 16 parts: 45
+  Min Parts: 2
+  Average Parts: 3.67
+  Max Parts: 7
+  Unique Part Names (9):
+    ['button', 'fastener', 'fastener_connector', 'head', 'lamp_base', 'lever', 'rotation_bar', 'toggle_button', 'translation_bar']
+
+Category: Laptop
+--------------------------------------------------------------------------------
+  Number of Objects: 55
+  Number of Objects within 8 parts: 55
+  Number of Objects within 16 parts: 55
+  Min Parts: 2
+  Average Parts: 2.00
+  Max Parts: 2
+  Unique Part Names (2):
+    ['laptop_base', 'screen']
+
+Category: Lighter
+--------------------------------------------------------------------------------
+  Number of Objects: 28
+  Number of Objects within 8 parts: 28
+  Number of Objects within 16 parts: 28
+  Min Parts: 2
+  Average Parts: 3.07
+  Max Parts: 4
+  Unique Part Names (6):
+    ['button', 'connector', 'lighter_body', 'rotation_button', 'rotation_lid', 'wheel']
+
+Category: Microwave
+--------------------------------------------------------------------------------
+  Number of Objects: 16
+  Number of Objects within 8 parts: 14
+  Number of Objects within 16 parts: 14
+  Min Parts: 2
+  Average Parts: 5.31
+  Max Parts: 21
+  Unique Part Names (5):
+    ['button', 'door', 'knob', 'microwave_body', 'rotation_tray']
+
+Category: Mouse
+--------------------------------------------------------------------------------
+  Number of Objects: 14
+  Number of Objects within 8 parts: 14
+  Number of Objects within 16 parts: 14
+  Min Parts: 2
+  Average Parts: 4.36
+  Max Parts: 8
+  Unique Part Names (4):
+    ['ball', 'button', 'mouse_body', 'wheel']
+
+Category: Oven
+--------------------------------------------------------------------------------
+  Number of Objects: 30
+  Number of Objects within 8 parts: 20
+  Number of Objects within 16 parts: 30
+  Min Parts: 2
+  Average Parts: 7.13
+  Max Parts: 13
+  Unique Part Names (6):
+    ['button', 'door', 'knob', 'oven_body', 'rotation_tray', 'translation_tray']
+
+Category: Pen
+--------------------------------------------------------------------------------
+  Number of Objects: 48
+  Number of Objects within 8 parts: 48
+  Number of Objects within 16 parts: 48
+  Min Parts: 2
+  Average Parts: 2.02
+  Max Parts: 3
+  Unique Part Names (3):
+    ['button', 'cap', 'pen_body']
+
+Category: Phone
+--------------------------------------------------------------------------------
+  Number of Objects: 18
+  Number of Objects within 8 parts: 6
+  Number of Objects within 16 parts: 9
+  Min Parts: 2
+  Average Parts: 16.17
+  Max Parts: 58
+  Unique Part Names (6):
+    ['button', 'phone_base', 'rotation_button', 'rotation_lid', 'slider', 'translation_lid']
+
+Category: Pliers
+--------------------------------------------------------------------------------
+  Number of Objects: 25
+  Number of Objects within 8 parts: 24
+  Number of Objects within 16 parts: 25
+  Min Parts: 2
+  Average Parts: 2.36
+  Max Parts: 11
+  Unique Part Names (2):
+    ['leg', 'rotation_blade']
+
+Category: Printer
+--------------------------------------------------------------------------------
+  Number of Objects: 29
+  Number of Objects within 8 parts: 11
+  Number of Objects within 16 parts: 19
+  Min Parts: 2
+  Average Parts: 12.97
+  Max Parts: 34
+  Unique Part Names (6):
+    ['button', 'drawer', 'knob', 'printer_body', 'slider', 'toggle_button']
+
+Category: Refrigerator
+--------------------------------------------------------------------------------
+  Number of Objects: 44
+  Number of Objects within 8 parts: 44
+  Number of Objects within 16 parts: 44
+  Min Parts: 2
+  Average Parts: 2.68
+  Max Parts: 4
+  Unique Part Names (2):
+    ['door', 'refrigerator_body']
+
+Category: Remote
+--------------------------------------------------------------------------------
+  Number of Objects: 49
+  Number of Objects within 8 parts: 7
+  Number of Objects within 16 parts: 12
+  Min Parts: 3
+  Average Parts: 30.41
+  Max Parts: 60
+  Unique Part Names (4):
+    ['button', 'knob', 'remote_base', 'rotation_button']
+
+Category: Safe
+--------------------------------------------------------------------------------
+  Number of Objects: 30
+  Number of Objects within 8 parts: 22
+  Number of Objects within 16 parts: 29
+  Min Parts: 3
+  Average Parts: 6.73
+  Max Parts: 17
+  Unique Part Names (5):
+    ['button', 'door', 'handle', 'knob', 'safe_body']
+
+Category: Scissors
+--------------------------------------------------------------------------------
+  Number of Objects: 47
+  Number of Objects within 8 parts: 47
+  Number of Objects within 16 parts: 47
+  Min Parts: 2
+  Average Parts: 2.00
+  Max Parts: 2
+  Unique Part Names (1):
+    ['leg']
+
+Category: Stapler
+--------------------------------------------------------------------------------
+  Number of Objects: 23
+  Number of Objects within 8 parts: 23
+  Number of Objects within 16 parts: 23
+  Min Parts: 3
+  Average Parts: 3.00
+  Max Parts: 3
+  Unique Part Names (3):
+    ['lid', 'stapler_base', 'stapler_body']
+
+Category: StorageFurniture
+--------------------------------------------------------------------------------
+  Number of Objects: 346
+  Number of Objects within 8 parts: 341
+  Number of Objects within 16 parts: 345
+  Min Parts: 2
+  Average Parts: 3.41
+  Max Parts: 20
+  Unique Part Names (7):
+    ['board', 'caster', 'drawer', 'furniture_body', 'rotation_door', 'translation_door', 'wheel']
+
+Category: Suitcase
+--------------------------------------------------------------------------------
+  Number of Objects: 24
+  Number of Objects within 8 parts: 21
+  Number of Objects within 16 parts: 24
+  Min Parts: 2
+  Average Parts: 4.21
+  Max Parts: 10
+  Unique Part Names (8):
+    ['button', 'caster', 'lid', 'lock', 'rotation_handle', 'suitcase_body', 'translation_handle', 'wheel']
+
+Category: Switch
+--------------------------------------------------------------------------------
+  Number of Objects: 70
+  Number of Objects within 8 parts: 69
+  Number of Objects within 16 parts: 70
+  Min Parts: 2
+  Average Parts: 2.79
+  Max Parts: 9
+  Unique Part Names (6):
+    ['button', 'knob', 'lever', 'slider', 'switch_frame', 'toggle_button']
+
+Category: Table
+--------------------------------------------------------------------------------
+  Number of Objects: 101
+  Number of Objects within 8 parts: 90
+  Number of Objects within 16 parts: 101
+  Min Parts: 2
+  Average Parts: 4.16
+  Max Parts: 13
+  Unique Part Names (7):
+    ['board', 'caster', 'door', 'drawer', 'furniture_body', 'handle', 'wheel']
+
+Category: Toaster
+--------------------------------------------------------------------------------
+  Number of Objects: 25
+  Number of Objects within 8 parts: 23
+  Number of Objects within 16 parts: 25
+  Min Parts: 2
+  Average Parts: 4.64
+  Max Parts: 13
+  Unique Part Names (5):
+    ['button', 'knob', 'slider', 'slot', 'toaster_body']
+
+Category: Toilet
+--------------------------------------------------------------------------------
+  Number of Objects: 69
+  Number of Objects within 8 parts: 69
+  Number of Objects within 16 parts: 69
+  Min Parts: 2
+  Average Parts: 3.32
+  Max Parts: 5
+  Unique Part Names (7):
+    ['button', 'knob', 'lever', 'lid', 'pump_lid', 'seat', 'toilet_body']
+
+Category: TrashCan
+--------------------------------------------------------------------------------
+  Number of Objects: 70
+  Number of Objects within 8 parts: 70
+  Number of Objects within 16 parts: 70
+  Min Parts: 2
+  Average Parts: 2.97
+  Max Parts: 6
+  Unique Part Names (8):
+    ['cover_lid', 'door', 'drawer', 'foot_pad', 'handle', 'lid', 'trashcan_body', 'wheel']
+
+Category: USB
+--------------------------------------------------------------------------------
+  Number of Objects: 51
+  Number of Objects within 8 parts: 51
+  Number of Objects within 16 parts: 51
+  Min Parts: 2
+  Average Parts: 2.02
+  Max Parts: 3
+  Unique Part Names (4):
+    ['handle', 'lid', 'usb_body', 'usb_rotation']
+
+Category: WashingMachine
+--------------------------------------------------------------------------------
+  Number of Objects: 17
+  Number of Objects within 8 parts: 8
+  Number of Objects within 16 parts: 17
+  Min Parts: 3
+  Average Parts: 8.47
+  Max Parts: 14
+  Unique Part Names (4):
+    ['button', 'door', 'knob', 'washing_machine_body']
+
+Category: Window
+--------------------------------------------------------------------------------
+  Number of Objects: 58
+  Number of Objects within 8 parts: 58
+  Number of Objects within 16 parts: 58
+  Min Parts: 2
+  Average Parts: 3.36
+  Max Parts: 7
+  Unique Part Names (3):
+    ['rotation_window', 'translation_window', 'window_frame']
+
+====================================================================================================
+Summary Table
+====================================================================================================
+
+Category              Objects    <=8   <=16    Min      Avg    Max    Unique Parts
+----------------------------------------------------------------------------------------------------
+Bottle                     57     57     57      2     2.00      2               3
+Box                        28     28     28      2     3.36      7               5
+Bucket                     36     36     36      2     2.06      3               2
+Camera                     37     22     30      3     9.22     27               7
+Cart                       61     60     61      2     3.80      9               4
+Chair                      81      3     33      3    15.47     20               7
+Clock                      31     31     31      2     3.42      5               3
+CoffeeMachine              54     39     54      2     6.76     16              14
+Dishwasher                 48     48     48      2     2.33      6               5
+Dispenser                  57     57     57      2     2.84      4               5
+Display                    37     37     37      2     2.51      8               4
+Door                       36     36     36      2     2.86      5               3
+Eyeglasses                 65     65     65      3     3.00      3               2
+Fan                        81     81     81      2     2.12      4               4
+Faucet                     84     84     84      2     2.71      4               4
+FoldingChair               26     26     26      2     2.23      3               2
+Globe                      61     61     61      2     2.13      4               3
+Kettle                     29     29     29      2     2.28      3               6
+Keyboard                   37      0      0     25    97.11    116               3
+KitchenPot                 25     25     25      2     2.12      4               4
+Knife                      44     40     44      2     3.39     11               3
+Lamp                       45     45     45      2     3.67      7               9
+Laptop                     55     55     55      2     2.00      2               2
+Lighter                    28     28     28      2     3.07      4               6
+Microwave                  16     14     14      2     5.31     21               5
+Mouse                      14     14     14      2     4.36      8               4
+Oven                       30     20     30      2     7.13     13               6
+Pen                        48     48     48      2     2.02      3               3
+Phone                      18      6      9      2    16.17     58               6
+Pliers                     25     24     25      2     2.36     11               2
+Printer                    29     11     19      2    12.97     34               6
+Refrigerator               44     44     44      2     2.68      4               2
+Remote                     49      7     12      3    30.41     60               4
+Safe                       30     22     29      3     6.73     17               5
+Scissors                   47     47     47      2     2.00      2               1
+Stapler                    23     23     23      3     3.00      3               3
+StorageFurniture          346    341    345      2     3.41     20               7
+Suitcase                   24     21     24      2     4.21     10               8
+Switch                     70     69     70      2     2.79      9               6
+Table                     101     90    101      2     4.16     13               7
+Toaster                    25     23     25      2     4.64     13               5
+Toilet                     69     69     69      2     3.32      5               7
+TrashCan                   70     70     70      2     2.97      6               8
+USB                        51     51     51      2     2.02      3               4
+WashingMachine             17      8     17      3     8.47     14               4
+Window                     58     58     58      2     3.36      7               3
+
+================================================================================

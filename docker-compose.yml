@@ -1,0 +1,30 @@
+services:
+  spark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TORCH_CUDA_ARCH_LIST: "${TORCH_CUDA_ARCH_LIST:-8.6;8.9}"
+        MAX_JOBS: "${MAX_JOBS:-2}"
+    image: spark:cuda12.4
+    working_dir: /workspace/SPARK
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace/SPARK
+    environment:
+      CUDA_HOME: /usr/local/cuda
+      PYOPENGL_PLATFORM: egl
+      PYTHONPATH: /workspace/SPARK
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
+      MESHY_API_KEY: "${MESHY_API_KEY:-}"
+      WANDB_API_KEY: "${WANDB_API_KEY:-}"
+    gpus: all
+    shm_size: "16gb"
+    tty: true
+    stdin_open: true
+    ports:
+      - "7860:7860"

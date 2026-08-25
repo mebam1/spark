@@ -110,6 +110,7 @@ TEMPLATE_HINT = """{
             "parent": "base",
             "joint_type": "fixed",
             "axis": "0 0 0",
+            "origin_xyz": "0 0 0",
             "limit_lower": "0",
             "limit_upper": "0"
         },
@@ -119,6 +120,7 @@ TEMPLATE_HINT = """{
             "parent": "link0",
             "joint_type": "revolute|prismatic|fixed",
             "axis": "1 0 0|0 1 0|0 0 1|-1 0 0|0 -1 0|0 0 -1|0 0 0",
+            "origin_xyz": "<coarse_joint_origin_x y z in the same normalized object frame as the segmented meshes>",
             "limit_lower": "<deg_or_m>",
             "limit_upper": "<deg_or_m>"
         }
@@ -163,7 +165,8 @@ Instructions:
 (4) IMPORTANT: The common part names listed above are ALL possible parts for this {category} category. From this list, select ONLY the parts that are VISIBLE and PRESENT in the given image.
 (5) IMPORTANT: The same part can appear MULTIPLE times. For example, if there are multiple drawers, include them as separate entries with the same part name (e.g., "drawer", "drawer", "drawer"). Each instance should have its own link label (link1, link2, link3, etc.).
 (6) For each kinematic part, infer joint_type (revolute | prismatic), axis, and motion limits.
-(7) The number of parts should be between {min_parts} and {max_parts}.
+(7) For each kinematic part, infer a coarse joint origin "origin_xyz" in the normalized object frame used by the segmented mesh parts. Use visible hinge/slider evidence and keep it approximate when uncertain.
+(8) The number of parts should be between {min_parts} and {max_parts}.
 
 Conventions:
 - Camera/image axes: +x right, +y up, +z front (toward camera).
@@ -190,6 +193,13 @@ Conventions:
 - All axes must be one of these unit vectors (or "0 0 0" for fixed):
   [1 0 0], [0 1 0], [0 0 1], [-1 0 0], [0 -1 0], [0 0 -1].
 
+- Joint origins:
+  - Output "origin_xyz" as three decimal numbers separated by spaces.
+  - Use the same normalized object coordinate frame as the segmented meshes.
+  - For a hinged revolute part, place the origin on the visible hinge line.
+  - For a prismatic part, place the origin near the center of the sliding guide.
+  - If exact 3D placement is ambiguous from the image, provide the best coarse estimate; the optimizer refines only the continuous offset later.
+
 Limits:
 - Revolute: use radians (decimal). Set "limit_lower" = "0" to represent the image pose as zero; choose a plausible positive "limit_upper" (e.g., "1.5707963267948966").
 - Prismatic: use meters (decimal). Set "limit_lower" = "0"; choose a positive "limit_upper" translation distance.
@@ -206,6 +216,7 @@ Output Schema (STRICT JSON, no extra keys, no commentary):
       "parent": "base",
       "joint_type": "fixed",
       "axis": "0 0 0",
+      "origin_xyz": "0 0 0",
       "limit_lower": "0",
       "limit_upper": "0"
     }},
@@ -215,6 +226,7 @@ Output Schema (STRICT JSON, no extra keys, no commentary):
       "parent": "link0",
       "joint_type": "revolute" | "prismatic",
       "axis": "<one of the allowed axes above>",
+      "origin_xyz": "<coarse x y z>",
       "limit_lower": "0",
       "limit_upper": "<positive number>"
     }}
@@ -228,6 +240,7 @@ Validation Checklist (perform mentally BEFORE answering; if any item fails, revi
 - [COUNT] num_parts == length of parts.
 - [KINEMATIC] No non-base part has joint_type "fixed".
 - [AXIS] Every axis is one of the allowed unit directions in IMAGE frame.
+- [ORIGIN] Every part has origin_xyz with exactly three numeric values.
 - [LIMITS] All limit_lower == "0"; all non-base parts have positive limit_upper.
 
 Return ONLY the final JSON. No explanations, no markdown.

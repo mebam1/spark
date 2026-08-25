@@ -11,14 +11,65 @@ Usage:
     python VLMguidance/generate_urdf.py --input-dir GAPartNet_PartNetMobility/selected
 """
 
-import os
 import json
 import argparse
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, Any, Optional
 
 
-def generate_urdf_content(metadata: Dict[str, Any], object_dir: Path) -> str:
+def _value_to_xyz_string(value: Any, default: str = "0 0 0") -> str:
+    if value is None:
+        return default
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (list, tuple)) and len(value) == 3:
+        return f"{float(value[0])} {float(value[1])} {float(value[2])}"
+    return default
+
+
+def _safe_part_name(name: str) -> str:
+    return "".join(ch if ch.isalnum() or ch in ("-", "_", ".") else "_" for ch in name)
+
+
+def _resolve_mesh_filename(
+    part: Dict[str, Any],
+    link_num: int,
+    object_dir: Path,
+    mesh_map: Optional[Dict[str, str]] = None,
+    mesh_dir: Optional[Path] = None,
+    mesh_pattern: str = "part_{index:02d}.glb",
+    absolute_mesh_paths: bool = False,
+) -> str:
+    label = part.get("label", f"link{link_num}")
+    part_name = part.get("name", f"part_{link_num}")
+
+    candidate = part.get("mesh_filename") or part.get("mesh_path")
+    if candidate is None and mesh_map:
+        candidate = mesh_map.get(label) or mesh_map.get(part_name)
+    if candidate is None:
+        candidate = mesh_pattern.format(index=link_num, label=label, name=_safe_part_name(part_name))
+
+    candidate_path = Path(candidate)
+    if mesh_dir is not None and not candidate_path.is_absolute():
+        candidate_path = mesh_dir / candidate_path
+
+    if absolute_mesh_paths:
+        return str(candidate_path.resolve())
+
+    try:
+        return str(candidate_path.resolve().relative_to(object_dir.resolve()))
+    except ValueError:
+        return str(candidate_path)
+
+
+def generate_urdf_content(
+    metadata: Dict[str, Any],
+    object_dir: Path,
+    mesh_map: Optional[Dict[str, str]] = None,
+    mesh_dir: Optional[Path] = None,
+    mesh_pattern: str = "part_{index:02d}.glb",
+    absolute_mesh_paths: bool = False,
+) -> str:
     """
     Generate URDF XML content from metadata.
 
@@ -49,6 +100,8 @@ def generate_urdf_content(metadata: Dict[str, Any], object_dir: Path) -> str:
         parent = part.get('parent', 'base')
         joint_type = part.get('joint_type', 'fixed')
         axis_str = part.get('axis', '0 0 0')
+        origin_xyz = _value_to_xyz_string(part.get('origin_xyz') or part.get('joint_origin_xyz'))
+        origin_rpy = _value_to_xyz_string(part.get('origin_rpy') or part.get('joint_origin_rpy'))
         limit_lower = part.get('limit_lower', '0')
         limit_upper = part.get('limit_upper', '0')
 
@@ -58,7 +111,15 @@ def generate_urdf_content(metadata: Dict[str, Any], object_dir: Path) -> str:
             link_num = int(link_num_str) if link_num_str.isdigit() else i
         else:
             link_num = i
-        mesh_file = f"part_{link_num:02d}.glb"  # Format as part_00.glb, part_01.glb, etc.
+        mesh_file = _resolve_mesh_filename(
+            part=part,
+            link_num=link_num,
+            object_dir=object_dir,
+            mesh_map=mesh_map,
+            mesh_dir=mesh_dir,
+            mesh_pattern=mesh_pattern,
+            absolute_mesh_paths=absolute_mesh_paths,
+        )
 
         # Add link with visual mesh
         lines.append(f'  <link name="{label}">')
@@ -76,7 +137,7 @@ def generate_urdf_content(metadata: Dict[str, Any], object_dir: Path) -> str:
         lines.append(f'  <joint name="{joint_name}" type="{joint_type}">')
         lines.append(f'    <parent link="{parent}"/>')
         lines.append(f'    <child link="{label}"/>')
-        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append(f'    <origin xyz="{origin_xyz}" rpy="{origin_rpy}"/>')
 
         # Add axis for revolute/prismatic joints
         if joint_type in ('revolute', 'prismatic', 'continuous'):
@@ -95,7 +156,14 @@ def generate_urdf_content(metadata: Dict[str, Any], object_dir: Path) -> str:
     return '\n'.join(lines)
 
 
-def process_object_directory(object_dir: Path, verbose: bool = True) -> bool:
+def process_object_directory(
+    object_dir: Path,
+    verbose: bool = True,
+    mesh_map: Optional[Dict[str, str]] = None,
+    mesh_dir: Optional[Path] = None,
+    mesh_pattern: str = "part_{index:02d}.glb",
+    absolute_mesh_paths: bool = False,
+) -> bool:
     """
     Process a single object directory and generate mobility.urdf.
 
@@ -122,7 +190,14 @@ def process_object_directory(object_dir: Path, verbose: bool = True) -> bool:
             metadata = json.load(f)
 
         # Generate URDF content
-        urdf_content = generate_urdf_content(metadata, object_dir)
+        urdf_content = generate_urdf_content(
+            metadata,
+            object_dir,
+            mesh_map=mesh_map,
+            mesh_dir=mesh_dir,
+            mesh_pattern=mesh_pattern,
+            absolute_mesh_paths=absolute_mesh_paths,
+        )
 
         # Write URDF file
         with open(output_path, 'w') as f:
@@ -160,10 +235,38 @@ def main():
         action="store_true",
         help="Process input-dir as single object directory (not batch mode)"
     )
+    parser.add_argument(
+        "--mesh-map",
+        type=str,
+        default=None,
+        help="Optional JSON mapping from link labels or semantic part names to existing mesh paths"
+    )
+    parser.add_argument(
+        "--mesh-dir",
+        type=str,
+        default=None,
+        help="Optional directory containing existing segmented mesh files"
+    )
+    parser.add_argument(
+        "--mesh-pattern",
+        type=str,
+        default="part_{index:02d}.glb",
+        help="Pattern for mesh filenames when metadata has no mesh_filename (fields: index, label, name)"
+    )
+    parser.add_argument(
+        "--absolute-mesh-paths",
+        action="store_true",
+        help="Write absolute mesh paths into the URDF instead of paths relative to the object directory"
+    )
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
     verbose = not args.quiet
+    mesh_map = None
+    if args.mesh_map:
+        with open(args.mesh_map, 'r', encoding='utf-8') as f:
+            mesh_map = json.load(f)
+    mesh_dir = Path(args.mesh_dir) if args.mesh_dir else None
 
     if not input_dir.exists():
         print(f"ERROR: Input directory not found: {input_dir}")
@@ -172,7 +275,14 @@ def main():
     # Single directory mode - process input_dir directly
     if args.single:
         print(f"Processing single directory: {input_dir}")
-        if process_object_directory(input_dir, verbose=verbose):
+        if process_object_directory(
+            input_dir,
+            verbose=verbose,
+            mesh_map=mesh_map,
+            mesh_dir=mesh_dir,
+            mesh_pattern=args.mesh_pattern,
+            absolute_mesh_paths=args.absolute_mesh_paths,
+        ):
             print("✓ Success")
         else:
             print("✗ Failed")
@@ -194,7 +304,14 @@ def main():
     fail_count = 0
 
     for subdir in subdirs:
-        if process_object_directory(subdir, verbose=verbose):
+        if process_object_directory(
+            subdir,
+            verbose=verbose,
+            mesh_map=mesh_map,
+            mesh_dir=mesh_dir,
+            mesh_pattern=args.mesh_pattern,
+            absolute_mesh_paths=args.absolute_mesh_paths,
+        ):
             success_count += 1
         else:
             fail_count += 1

@@ -100,6 +100,8 @@ def render_mesh(
     radius: float = 4.0,
     azimuth: float = 0.0,
     elevation: float = 0.0,
+    camera_y: float = None,
+    target_y: float = 0.0,
     single_view: bool = False,
     light_intensity: float = 5.0,
 ):
@@ -128,6 +130,7 @@ def render_mesh(
     print(f"Add color: {add_color}")
     print(f"Single view mode: {single_view}")
     print(f"Front view camera: azimuth={azimuth}, elevation={elevation}")
+    print(f"Camera Y: {camera_y if camera_y is not None else 'spherical default'}, target Y: {target_y}")
     print(f"Light intensity: {light_intensity}")
     print(f"Create GIF: {create_gif}")
     if create_gif:
@@ -171,6 +174,8 @@ def render_mesh(
         radius=radius,
         light_intensity=light_intensity,
         flags=pyrender.constants.RenderFlags.RGBA,
+        camera_y=camera_y,
+        target=np.array([0.0, target_y, 0.0]),
     )
     print("Front view rendered successfully")
 
@@ -283,6 +288,18 @@ if __name__ == "__main__":
         help="Front-view camera elevation in degrees (default: 0.0)"
     )
     parser.add_argument(
+        "--camera-y",
+        type=float,
+        default=None,
+        help="Absolute world-space camera Y coordinate for the front view"
+    )
+    parser.add_argument(
+        "--target-y",
+        type=float,
+        default=0.0,
+        help="World-space Y coordinate of the look-at target (default: 0.0)"
+    )
+    parser.add_argument(
         "--single",
         action="store_true",
         help="Only render front view (skip angled view)"
@@ -306,6 +323,8 @@ if __name__ == "__main__":
         radius=args.radius,
         azimuth=args.azimuth,
         elevation=args.elevation,
+        camera_y=args.camera_y,
+        target_y=args.target_y,
         single_view=args.single,
         light_intensity=args.light,
     )

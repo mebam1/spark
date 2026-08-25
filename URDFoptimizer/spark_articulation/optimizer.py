@@ -92,6 +92,8 @@ def optimize_urdf_against_open_silhouette(
         fov=renderer_config.fov,
         elevation=renderer_config.elevation,
         azimuth=renderer_config.azimuth,
+        camera_y=renderer_config.camera_y,
+        target_y=renderer_config.target_y,
         faces_per_pixel=renderer_config.faces_per_pixel,
         sigma=renderer_config.sigma,
         gamma=renderer_config.gamma,
@@ -163,4 +165,3 @@ def optimize_urdf_against_open_silhouette(
         joint_values=joint_values,
         output_urdf=output_urdf,
     )
-

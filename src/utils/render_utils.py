@@ -251,7 +251,8 @@ def create_camera_pose_on_sphere(
     elevation: float = 0.0, # in degrees
     radius: float = 3.5,
     target: np.ndarray = np.array([0.0, 0.0, 0.0]),
-    up: np.ndarray = np.array([0.0, 1.0, 0.0])
+    up: np.ndarray = np.array([0.0, 1.0, 0.0]),
+    camera_y: Optional[float] = None,
 ) -> np.ndarray:
     """
     Create a camera pose using spherical coordinates and look-at matrix.
@@ -263,6 +264,9 @@ def create_camera_pose_on_sphere(
         radius: Distance from camera to target
         target: Point the camera looks at (default: origin)
         up: World up vector (default: [0, 1, 0])
+        camera_y: Optional absolute world-space camera Y coordinate. When set,
+            it overrides the spherical-coordinate Y while keeping X/Z from
+            azimuth/elevation/radius.
 
     Returns:
         4x4 camera pose matrix (camera -> world), ready for pyrender
@@ -278,6 +282,8 @@ def create_camera_pose_on_sphere(
         radius * np.sin(elevation_rad),
         radius * np.cos(elevation_rad) * np.cos(azimuth_rad),
     ]) + target
+    if camera_y is not None:
+        camera_position[1] = camera_y
 
     # Create view matrix (world -> camera) using look-at
     view_matrix = create_look_at_matrix(camera_position, target, up)
@@ -301,7 +307,9 @@ def render_single_view(
     normalize_depth: bool = False,
     flags: int = pyrender.constants.RenderFlags.NONE,
     return_depth: bool = False, 
-    return_type: Literal['pil', 'ndarray'] = 'pil'
+    return_type: Literal['pil', 'ndarray'] = 'pil',
+    camera_y: Optional[float] = None,
+    target: Optional[np.ndarray] = None,
 ) -> Union[
         Image.Image, 
         np.ndarray, 
@@ -327,10 +335,15 @@ def render_single_view(
     )
     renderer = pyrender.OffscreenRenderer(*image_size)
 
+    if target is None:
+        target = np.array([0.0, 0.0, 0.0])
+
     camera_pose = create_camera_pose_on_sphere(
         azimuth,
         elevation,
-        radius
+        radius,
+        target=target,
+        camera_y=camera_y,
     )
 
     if num_env_lights > 0:

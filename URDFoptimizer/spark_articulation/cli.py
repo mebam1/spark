@@ -47,6 +47,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--camera-fov", type=float, default=40.0)
     parser.add_argument("--camera-elevation", type=float, default=0.0)
     parser.add_argument("--camera-azimuth", type=float, default=0.0)
+    parser.add_argument("--camera-y", type=float, default=None)
+    parser.add_argument("--target-y", type=float, default=0.0)
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     return parser
 
@@ -88,6 +90,8 @@ def main() -> None:
         fov=args.camera_fov,
         elevation=args.camera_elevation,
         azimuth=args.camera_azimuth,
+        camera_y=args.camera_y,
+        target_y=args.target_y,
     )
 
     result = optimize_urdf_against_open_silhouette(
@@ -121,4 +125,3 @@ def main() -> None:
         with (out_dir / "optimization_summary.json").open("w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
     print(json.dumps(summary, indent=2))
-

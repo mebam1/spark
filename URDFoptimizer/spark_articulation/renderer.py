@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
+from typing import Optional
 
 import torch
 
@@ -14,6 +16,8 @@ class RendererConfig:
     fov: float = 40.0
     elevation: float = 0.0
     azimuth: float = 0.0
+    camera_y: Optional[float] = None
+    target_y: float = 0.0
     faces_per_pixel: int = 50
     sigma: float = 1e-5
     gamma: float = 1e-6
@@ -33,12 +37,29 @@ def build_silhouette_renderer(config: RendererConfig, device: torch.device):
     except Exception as exc:  # pragma: no cover - depends on optional environment.
         raise RuntimeError("PyTorch3D is required for differentiable silhouette rendering") from exc
 
-    R, T = look_at_view_transform(
-        dist=config.radius,
-        elev=config.elevation,
-        azim=config.azimuth,
-        device=device,
-    )
+    if config.camera_y is None:
+        R, T = look_at_view_transform(
+            dist=config.radius,
+            elev=config.elevation,
+            azim=config.azimuth,
+            at=((0.0, config.target_y, 0.0),),
+            device=device,
+        )
+    else:
+        azimuth = math.radians(config.azimuth)
+        elevation = math.radians(config.elevation)
+        eye = (
+            (
+                config.radius * math.cos(elevation) * math.sin(azimuth),
+                float(config.camera_y),
+                config.radius * math.cos(elevation) * math.cos(azimuth),
+            ),
+        )
+        R, T = look_at_view_transform(
+            eye=eye,
+            at=((0.0, config.target_y, 0.0),),
+            device=device,
+        )
     cameras = FoVPerspectiveCameras(device=device, R=R, T=T, fov=config.fov)
 
     blur_radius = torch.log(torch.tensor(1.0 / 1e-4 - 1.0, device=device)) * config.sigma
@@ -64,4 +85,3 @@ def build_silhouette_renderer(config: RendererConfig, device: torch.device):
 def render_silhouette(renderer, meshes) -> torch.Tensor:
     images = renderer(meshes)
     return images[..., 3].squeeze(0).clamp(0.0, 1.0)
-

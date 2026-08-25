@@ -84,7 +84,7 @@ class LocalizeUrdfMeshesTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            def fake_write_mesh(source: Path, target: Path, mesh_format: str | None) -> None:
+            def fake_write_mesh(source: Path, target: Path, mesh_format: str | None, flip_uv_v: bool = True) -> None:
                 target.write_bytes(source.read_bytes())
 
             with patch("URDFoptimizer.render.localize_urdf_meshes._write_mesh", side_effect=fake_write_mesh):
@@ -97,6 +97,7 @@ class LocalizeUrdfMeshesTests(unittest.TestCase):
                 )
 
             self.assertEqual(summary["mesh_format"], "obj")
+            self.assertEqual(summary["flip_uv_v"], True)
             self.assertEqual(summary["converted_meshes"], 1)
             self.assertEqual(summary["copied_meshes"], 0)
             self.assertEqual(summary["added_collision_meshes"], 1)
@@ -118,6 +119,47 @@ class LocalizeUrdfMeshesTests(unittest.TestCase):
                     add_collisions=True,
                 )
             self.assertEqual(sorted(path.name for path in (urdf_dir / "meshes").glob("*.obj")), ["body.obj"])
+
+    def test_convert_mesh_format_can_disable_uv_v_flip(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source_mesh_dir = root / "split_parts"
+            urdf_dir = root / "articulation"
+            source_mesh_dir.mkdir()
+            urdf_dir.mkdir()
+
+            (source_mesh_dir / "body.glb").write_bytes(b"body")
+            urdf_path = urdf_dir / "mobility.urdf"
+            urdf_path.write_text(
+                """<?xml version="1.0"?>
+<robot name="object">
+  <link name="link0">
+    <visual>
+      <geometry><mesh filename="../split_parts/body.glb"/></geometry>
+    </visual>
+  </link>
+</robot>
+""",
+                encoding="utf-8",
+            )
+
+            seen_flip_values = []
+
+            def fake_write_mesh(source: Path, target: Path, mesh_format: str | None, flip_uv_v: bool = True) -> None:
+                seen_flip_values.append(flip_uv_v)
+                target.write_bytes(source.read_bytes())
+
+            with patch("URDFoptimizer.render.localize_urdf_meshes._write_mesh", side_effect=fake_write_mesh):
+                summary = localize_urdf_meshes(
+                    urdf_path,
+                    output_urdf_path=urdf_dir / "mobility_isaac.urdf",
+                    mesh_dir="meshes",
+                    mesh_format="obj",
+                    flip_uv_v=False,
+                )
+
+            self.assertEqual(summary["flip_uv_v"], False)
+            self.assertEqual(seen_flip_values, [False])
 
     def test_localize_urdf_meshes_raises_for_missing_mesh(self):
         with tempfile.TemporaryDirectory() as tmp:

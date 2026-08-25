@@ -50,6 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Add collision meshes copied from visual meshes when localizing URDF meshes",
     )
+    parser.add_argument(
+        "--no-flip-uv-v",
+        action="store_true",
+        help="Do not flip texture V coordinates when converting GLB/GLTF meshes to OBJ",
+    )
     parser.add_argument("--csv", default="./VLMguidance/partnet-mobility-data-analysis.csv")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--skip-vlm-structure", action="store_true", help="Require existing --metadata or --urdf")
@@ -105,6 +110,7 @@ def main() -> None:
                 absolute_paths=args.absolute_mesh_paths,
                 mesh_format=args.localized_mesh_format,
                 add_collisions=args.add_visual_collisions,
+                flip_uv_v=not args.no_flip_uv_v,
             )
             print(
                 f"Localized {summary['localized_meshes']} mesh file(s) into "
@@ -157,6 +163,7 @@ def main() -> None:
                 absolute_paths=args.absolute_mesh_paths,
                 mesh_format=args.localized_mesh_format,
                 add_collisions=args.add_visual_collisions,
+                flip_uv_v=not args.no_flip_uv_v,
             )
             print(
                 f"Localized {summary['localized_meshes']} mesh file(s) into "

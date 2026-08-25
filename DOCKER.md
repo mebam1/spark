@@ -235,6 +235,7 @@ docker compose run --rm spark python URDFoptimizer/render/localize_urdf_meshes.p
 ```
 
 Isaac Sim에는 `output/A_post_articulation/mobility_refined_isaac.urdf`를 import합니다.
+텍스처가 위아래로 뒤집혀 보이면 같은 명령에 `--no-flip-uv-v`를 추가해서 다시 생성합니다.
 필요하면 coarse URDF도 같은 방식으로 정리할 수 있습니다.
 
 ```bash

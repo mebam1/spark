@@ -98,6 +98,8 @@ def render_mesh(
     num_views: int = 36,
     fps: int = 18,
     radius: float = 4.0,
+    azimuth: float = 0.0,
+    elevation: float = 0.0,
     single_view: bool = False,
     light_intensity: float = 5.0,
 ):
@@ -125,6 +127,7 @@ def render_mesh(
     print(f"Output directory: {output_dir}")
     print(f"Add color: {add_color}")
     print(f"Single view mode: {single_view}")
+    print(f"Front view camera: azimuth={azimuth}, elevation={elevation}")
     print(f"Light intensity: {light_intensity}")
     print(f"Create GIF: {create_gif}")
     if create_gif:
@@ -159,12 +162,12 @@ def render_mesh(
     else:
         print("Using default texture (no color added)")
 
-    # Render front view (azimuth=0°, elevation=0°)
-    print("\nRendering front view (azimuth=0°, elevation=0°)...")
+    # Render front view with the requested camera orientation.
+    print(f"\nRendering front view (azimuth={azimuth}°, elevation={elevation}°)...")
     front_view = render_single_view(
         mesh,
-        azimuth=0.0,
-        elevation=0.0,
+        azimuth=azimuth,
+        elevation=elevation,
         radius=radius,
         light_intensity=light_intensity,
         flags=pyrender.constants.RenderFlags.RGBA,
@@ -268,6 +271,18 @@ if __name__ == "__main__":
         help="Camera distance from object (default: 4.0)"
     )
     parser.add_argument(
+        "--azimuth",
+        type=float,
+        default=0.0,
+        help="Front-view camera azimuth in degrees (default: 0.0)"
+    )
+    parser.add_argument(
+        "--elevation",
+        type=float,
+        default=0.0,
+        help="Front-view camera elevation in degrees (default: 0.0)"
+    )
+    parser.add_argument(
         "--single",
         action="store_true",
         help="Only render front view (skip angled view)"
@@ -289,6 +304,8 @@ if __name__ == "__main__":
         num_views=args.num_views,
         fps=args.fps,
         radius=args.radius,
+        azimuth=args.azimuth,
+        elevation=args.elevation,
         single_view=args.single,
         light_intensity=args.light,
     )

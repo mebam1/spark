@@ -39,6 +39,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default=None)
     parser.add_argument("--iters", type=int, default=200)
     parser.add_argument("--image-size", type=int, default=256)
+    parser.add_argument("--camera-radius", type=float, default=4.0)
+    parser.add_argument("--camera-fov", type=float, default=40.0)
+    parser.add_argument("--camera-azimuth", type=float, default=0.0)
+    parser.add_argument("--camera-elevation", type=float, default=0.0)
     parser.add_argument("--joint-name", action="append", default=None)
     return parser
 
@@ -135,6 +139,14 @@ def main() -> None:
         str(args.iters),
         "--image-size",
         str(args.image_size),
+        "--camera-radius",
+        str(args.camera_radius),
+        "--camera-fov",
+        str(args.camera_fov),
+        "--camera-azimuth",
+        str(args.camera_azimuth),
+        "--camera-elevation",
+        str(args.camera_elevation),
     ]
     if args.device:
         opt_cmd.extend(["--device", args.device])
@@ -146,4 +158,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

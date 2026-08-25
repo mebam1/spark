@@ -48,6 +48,11 @@ python run_articulation.py \
   --mesh-dir path/to/segmented_meshes
 ```
 
+Mesh correspondence is required because the optimizer assumes one URDF link is
+one rigid moving part. You do not need a separate `mesh_map.json` if every part
+in `metadata.json` already has `mesh_filename`/`mesh_path`, or if the mesh files
+match the generator's default `part_00.glb`, `part_01.glb`, ... pattern.
+
 Use `--mesh-map mesh_map.json` when semantic link labels should map to explicit
 mesh files, for example:
 
@@ -80,4 +85,3 @@ learned open-state joint values are written to `optimization_summary.json`.
 
 [Reason] This keeps URDF structure valid while recording the optimized pose used
 for matching `I_open`.
-

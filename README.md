@@ -113,6 +113,76 @@ python run.py
 
 `run.py` runs nine stages end-to-end (metadata → URDF → per-part image generation → PartCrafter inference → mesh cleanup → texture). Toggle individual steps with the `step1 … step9` flags at the top of the file.
 
+## Articulation-Only From an Existing Textured Mesh
+
+Use this path when you already have a textured, part-segmented mesh and want to
+run only the SPARK VLM-guided URDF reasoning and differentiable articulation
+refinement. This path does not run DiT, VAE latent generation, DINOv2
+conditioning, part-image mesh synthesis, or texture generation.
+
+If the input is a multi-part GLB such as `assets/A_post.glb`, first render an RGB
+input image:
+
+```bash
+sudo docker compose run --rm spark python scripts/render/glb.py \
+  --input assets/A_post.glb \
+  --output_dir output/A_post_render \
+  --single \
+  --camera-y 1 \
+  --target-y 1
+```
+
+Then split the GLB into per-part mesh files:
+
+```bash
+sudo docker compose run --rm spark python URDFoptimizer/render/split_glb.py \
+  --input assets/A_post.glb \
+  --output output/A_post_parts
+```
+
+The articulation-only URDF generator needs to know which segmented mesh belongs
+to each URDF link. There are three supported ways to provide that mapping:
+
+1. Put `mesh_filename` or `mesh_path` directly in each `metadata.json` part.
+2. Use `--mesh-dir` when files are named by the default pattern
+   `part_00.glb`, `part_01.glb`, ...
+3. Use an explicit `mesh_map.json`, which is recommended when split GLB part
+   names contain semantic suffixes or when VLM link order must be checked.
+
+Example `output/A_post_articulation/mesh_map.json`:
+
+```json
+{
+  "link0": "../A_post_parts/part_0_body.glb",
+  "link1": "../A_post_parts/part_1_left_door.glb",
+  "link2": "../A_post_parts/part_2_right_door.glb"
+}
+```
+
+The keys must match the labels in `output/A_post_articulation/metadata.json`.
+The paths are resolved relative to the generated URDF directory.
+
+Run the articulation-only pipeline:
+
+```bash
+sudo docker compose run --rm spark python run_articulation.py \
+  --image output/A_post_render/front_view.png \
+  --output-dir output/A_post_articulation \
+  --mesh-map output/A_post_articulation/mesh_map.json \
+  --camera-y 1 \
+  --target-y 1 \
+  --iters 200 \
+  --image-size 256 \
+  --device cuda
+```
+
+Output:
+
+```text
+output/A_post_articulation/mobility_refined.urdf
+output/A_post_articulation/URDFoptimize_spark/optimization_summary.json
+```
+
 ## 📚 Data Preprocessing
 
 See [`datasets/README.md`](datasets/README.md) for the full pipeline. A typical PartNet-Mobility flow:

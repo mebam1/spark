@@ -145,6 +145,102 @@ docker compose run --rm spark python scripts/render/glb.py \
     --gif
 ```
 
+## Articulation-Only Mesh Mapping Web
+
+GUI/display가 없는 서버에서는 split mesh와 LLM link graph를 HTTP 웹으로 연결합니다.
+서버에서 명령을 실행한 뒤 작업 PC 브라우저에서 `http://<server-ip>:7860`으로 접속합니다.
+
+먼저 GLB를 렌더링해서 LLM 입력 이미지를 만듭니다.
+
+```bash
+docker compose run --rm spark python scripts/render/glb.py \
+    --input assets/A_post.glb \
+    --output_dir output/A_post_render \
+    --single \
+    --camera-y 1 \
+    --target-y 1
+```
+
+LLM link graph가 들어 있는 metadata를 생성합니다.
+
+```bash
+docker compose run --rm spark python VLMguidance/generate_json.py \
+    --input output/A_post_render/front_view.png \
+    --output output/A_post_articulation/metadata.json \
+    --csv VLMguidance/partnet-mobility-data-analysis.csv
+```
+
+GLB를 split mesh로 나눕니다.
+
+```bash
+docker compose run --rm spark python URDFoptimizer/render/split_glb.py \
+    --input assets/A_post.glb \
+    --output output/A_post_parts
+```
+
+HTTP mesh mapper를 띄웁니다. 각 split GLB를 브라우저에서 확인하고 LLM link에 할당한 뒤
+`Save mesh_map.json`을 누르면 `output/A_post_articulation/mesh_map.json`이 저장됩니다.
+여러 GLB를 같은 link에 할당하면 같은 rigid link의 여러 visual mesh로 처리됩니다.
+
+```bash
+docker compose run --rm -p 7860:7860 spark python URDFoptimizer/render/mesh_map_web.py \
+    --metadata output/A_post_articulation/metadata.json \
+    --split-dir output/A_post_parts \
+    --output output/A_post_articulation/mesh_map.json \
+    --host 0.0.0.0 \
+    --port 7860
+```
+
+split 직후 바로 HTTP mapper를 띄울 수도 있습니다.
+
+```bash
+docker compose run --rm -p 7860:7860 spark python URDFoptimizer/render/split_glb.py \
+    --input assets/A_post.glb \
+    --output output/A_post_parts \
+    --metadata output/A_post_articulation/metadata.json \
+    --mesh-map-output output/A_post_articulation/mesh_map.json \
+    --launch-web \
+    --host 0.0.0.0 \
+    --port 7860
+```
+
+mapping 저장 후 articulation-only pipeline을 실행합니다.
+
+```bash
+docker compose run --rm spark python run_articulation.py \
+    --image output/A_post_render/front_view.png \
+    --output-dir output/A_post_articulation \
+    --skip-vlm-structure \
+    --mesh-map output/A_post_articulation/mesh_map.json \
+    --localize-meshes \
+    --camera-y 1 \
+    --target-y 1 \
+    --iters 200 \
+    --image-size 256 \
+    --device cuda
+```
+
+이미 `mobility_refined.urdf`를 생성한 뒤 mesh가 `A_post_articulation` 밖에 있어서 USD 변환에서
+axis만 보인다면, 아래 post-process 명령으로 참조 GLB를 `A_post_articulation/meshes/`로 복사하고
+URDF mesh 경로를 rewrite합니다.
+
+```bash
+docker compose run --rm spark python URDFoptimizer/render/localize_urdf_meshes.py \
+    --urdf output/A_post_articulation/mobility_refined.urdf \
+    --mesh-dir meshes
+```
+
+필요하면 coarse URDF도 같은 방식으로 정리할 수 있습니다.
+
+```bash
+docker compose run --rm spark python URDFoptimizer/render/localize_urdf_meshes.py \
+    --urdf output/A_post_articulation/mobility.urdf \
+    --mesh-dir meshes
+```
+
+서버가 외부 인터넷에 접근할 수 없어서 브라우저 GLB viewer 스크립트를 CDN에서 못 가져오는 경우,
+`--viewer-script-url`에 내부망 또는 로컬에서 제공하는 `model-viewer.min.js` URL을 지정합니다.
+
 ## HuggingFace Upload
 
 로그인:

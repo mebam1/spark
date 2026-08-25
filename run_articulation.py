@@ -14,6 +14,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from URDFoptimizer.render.localize_urdf_meshes import localize_urdf_meshes
+
 
 def _run(cmd: list[str]) -> None:
     print(" ".join(cmd))
@@ -31,6 +33,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--mesh-map", default=None, help="JSON mapping link labels or semantic part names to mesh paths")
     parser.add_argument("--mesh-pattern", default="part_{index:02d}.glb", help="Segment mesh filename pattern")
     parser.add_argument("--absolute-mesh-paths", action="store_true", help="Write absolute mesh paths into generated URDF")
+    parser.add_argument(
+        "--localize-meshes",
+        action="store_true",
+        help="Copy URDF mesh references into output-dir/meshes and rewrite mobility.urdf before optimization",
+    )
+    parser.add_argument("--localized-mesh-dir", default="meshes", help="Mesh subdirectory used with --localize-meshes")
     parser.add_argument("--csv", default="./VLMguidance/partnet-mobility-data-analysis.csv")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--skip-vlm-structure", action="store_true", help="Require existing --metadata or --urdf")
@@ -78,7 +86,19 @@ def main() -> None:
 
     if args.urdf:
         urdf_path = out_dir / "mobility.urdf"
-        shutil.copy2(args.urdf, urdf_path)
+        if args.localize_meshes:
+            summary = localize_urdf_meshes(
+                args.urdf,
+                output_urdf_path=urdf_path,
+                mesh_dir=out_dir / args.localized_mesh_dir,
+                absolute_paths=args.absolute_mesh_paths,
+            )
+            print(
+                f"Localized {summary['localized_meshes']} mesh file(s) into "
+                f"{summary['mesh_dir']} ({summary['copied_meshes']} copied)"
+            )
+        else:
+            shutil.copy2(args.urdf, urdf_path)
     else:
         if not metadata_path.exists():
             raise SystemExit("metadata.json is required to generate a URDF")
@@ -115,6 +135,18 @@ def main() -> None:
             gen_cmd.append("--absolute-mesh-paths")
         _run(gen_cmd)
         urdf_path = out_dir / "mobility.urdf"
+
+        if args.localize_meshes:
+            summary = localize_urdf_meshes(
+                urdf_path,
+                output_urdf_path=urdf_path,
+                mesh_dir=out_dir / args.localized_mesh_dir,
+                absolute_paths=args.absolute_mesh_paths,
+            )
+            print(
+                f"Localized {summary['localized_meshes']} mesh file(s) into "
+                f"{summary['mesh_dir']} ({summary['copied_meshes']} copied)"
+            )
 
     if args.open_image:
         open_image = out_dir / "open.png"

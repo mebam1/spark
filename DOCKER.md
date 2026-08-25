@@ -213,6 +213,8 @@ docker compose run --rm spark python run_articulation.py \
     --skip-vlm-structure \
     --mesh-map output/A_post_articulation/mesh_map.json \
     --localize-meshes \
+    --localized-mesh-format obj \
+    --add-visual-collisions \
     --camera-y 1 \
     --target-y 1 \
     --iters 200 \
@@ -220,22 +222,28 @@ docker compose run --rm spark python run_articulation.py \
     --device cuda
 ```
 
-이미 `mobility_refined.urdf`를 생성한 뒤 mesh가 `A_post_articulation` 밖에 있어서 USD 변환에서
-axis만 보인다면, 아래 post-process 명령으로 참조 GLB를 `A_post_articulation/meshes/`로 복사하고
-URDF mesh 경로를 rewrite합니다.
+이미 `mobility_refined.urdf`를 생성한 뒤 Isaac Sim import에서 axis만 보인다면, 아래 post-process
+명령으로 참조 GLB를 `A_post_articulation/meshes/*.obj`로 변환하고 Isaac용 URDF를 따로 만듭니다.
 
 ```bash
 docker compose run --rm spark python URDFoptimizer/render/localize_urdf_meshes.py \
     --urdf output/A_post_articulation/mobility_refined.urdf \
-    --mesh-dir meshes
+    --output-urdf output/A_post_articulation/mobility_refined_isaac.urdf \
+    --mesh-dir meshes \
+    --mesh-format obj \
+    --add-collisions
 ```
 
+Isaac Sim에는 `output/A_post_articulation/mobility_refined_isaac.urdf`를 import합니다.
 필요하면 coarse URDF도 같은 방식으로 정리할 수 있습니다.
 
 ```bash
 docker compose run --rm spark python URDFoptimizer/render/localize_urdf_meshes.py \
     --urdf output/A_post_articulation/mobility.urdf \
-    --mesh-dir meshes
+    --output-urdf output/A_post_articulation/mobility_isaac.urdf \
+    --mesh-dir meshes \
+    --mesh-format obj \
+    --add-collisions
 ```
 
 서버가 외부 인터넷에 접근할 수 없어서 브라우저 GLB viewer 스크립트를 CDN에서 못 가져오는 경우,

@@ -39,6 +39,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Copy URDF mesh references into output-dir/meshes and rewrite mobility.urdf before optimization",
     )
     parser.add_argument("--localized-mesh-dir", default="meshes", help="Mesh subdirectory used with --localize-meshes")
+    parser.add_argument(
+        "--localized-mesh-format",
+        default="keep",
+        choices=["keep", "obj", "stl"],
+        help="Mesh format used with --localize-meshes. Use obj or stl for Isaac Sim URDF import",
+    )
+    parser.add_argument(
+        "--add-visual-collisions",
+        action="store_true",
+        help="Add collision meshes copied from visual meshes when localizing URDF meshes",
+    )
     parser.add_argument("--csv", default="./VLMguidance/partnet-mobility-data-analysis.csv")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--skip-vlm-structure", action="store_true", help="Require existing --metadata or --urdf")
@@ -92,6 +103,8 @@ def main() -> None:
                 output_urdf_path=urdf_path,
                 mesh_dir=out_dir / args.localized_mesh_dir,
                 absolute_paths=args.absolute_mesh_paths,
+                mesh_format=args.localized_mesh_format,
+                add_collisions=args.add_visual_collisions,
             )
             print(
                 f"Localized {summary['localized_meshes']} mesh file(s) into "
@@ -142,6 +155,8 @@ def main() -> None:
                 output_urdf_path=urdf_path,
                 mesh_dir=out_dir / args.localized_mesh_dir,
                 absolute_paths=args.absolute_mesh_paths,
+                mesh_format=args.localized_mesh_format,
+                add_collisions=args.add_visual_collisions,
             )
             print(
                 f"Localized {summary['localized_meshes']} mesh file(s) into "

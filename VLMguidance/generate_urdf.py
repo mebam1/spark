@@ -13,8 +13,9 @@ Usage:
 
 import json
 import argparse
+import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, List, Optional, Union
 
 
 def _value_to_xyz_string(value: Any, default: str = "0 0 0") -> str:
@@ -31,41 +32,78 @@ def _safe_part_name(name: str) -> str:
     return "".join(ch if ch.isalnum() or ch in ("-", "_", ".") else "_" for ch in name)
 
 
-def _resolve_mesh_filename(
+MeshMapValue = Union[str, List[str]]
+
+
+def _as_mesh_list(value: Any) -> Optional[List[str]]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    return [str(value)]
+
+
+def _resolve_one_mesh_filename(
+    candidate: str,
+    object_dir: Path,
+    mesh_dir: Optional[Path] = None,
+    absolute_mesh_paths: bool = False,
+) -> str:
+    candidate_path = Path(candidate)
+    if candidate_path.is_absolute():
+        resolved_path = candidate_path.resolve()
+    elif mesh_dir is not None:
+        resolved_path = (mesh_dir / candidate_path).resolve()
+    else:
+        resolved_path = (object_dir / candidate_path).resolve()
+
+    if absolute_mesh_paths:
+        return resolved_path.as_posix()
+
+    return Path(os.path.relpath(resolved_path, object_dir.resolve())).as_posix()
+
+
+def _resolve_mesh_filenames(
     part: Dict[str, Any],
     link_num: int,
     object_dir: Path,
-    mesh_map: Optional[Dict[str, str]] = None,
+    mesh_map: Optional[Dict[str, MeshMapValue]] = None,
     mesh_dir: Optional[Path] = None,
     mesh_pattern: str = "part_{index:02d}.glb",
     absolute_mesh_paths: bool = False,
-) -> str:
+) -> List[str]:
     label = part.get("label", f"link{link_num}")
     part_name = part.get("name", f"part_{link_num}")
 
-    candidate = part.get("mesh_filename") or part.get("mesh_path")
+    candidate = (
+        part.get("mesh_filenames")
+        or part.get("mesh_paths")
+        or part.get("mesh_filename")
+        or part.get("mesh_path")
+    )
     if candidate is None and mesh_map:
         candidate = mesh_map.get(label) or mesh_map.get(part_name)
     if candidate is None:
         candidate = mesh_pattern.format(index=link_num, label=label, name=_safe_part_name(part_name))
 
-    candidate_path = Path(candidate)
-    if mesh_dir is not None and not candidate_path.is_absolute():
-        candidate_path = mesh_dir / candidate_path
-
-    if absolute_mesh_paths:
-        return str(candidate_path.resolve())
-
-    try:
-        return str(candidate_path.resolve().relative_to(object_dir.resolve()))
-    except ValueError:
-        return str(candidate_path)
+    candidates = _as_mesh_list(candidate) or []
+    return [
+        _resolve_one_mesh_filename(
+            item,
+            object_dir=object_dir,
+            mesh_dir=mesh_dir,
+            absolute_mesh_paths=absolute_mesh_paths,
+        )
+        for item in candidates
+    ]
 
 
 def generate_urdf_content(
     metadata: Dict[str, Any],
     object_dir: Path,
-    mesh_map: Optional[Dict[str, str]] = None,
+    mesh_map: Optional[Dict[str, MeshMapValue]] = None,
     mesh_dir: Optional[Path] = None,
     mesh_pattern: str = "part_{index:02d}.glb",
     absolute_mesh_paths: bool = False,
@@ -111,7 +149,7 @@ def generate_urdf_content(
             link_num = int(link_num_str) if link_num_str.isdigit() else i
         else:
             link_num = i
-        mesh_file = _resolve_mesh_filename(
+        mesh_files = _resolve_mesh_filenames(
             part=part,
             link_num=link_num,
             object_dir=object_dir,
@@ -123,12 +161,13 @@ def generate_urdf_content(
 
         # Add link with visual mesh
         lines.append(f'  <link name="{label}">')
-        lines.append('    <visual>')
-        lines.append('      <geometry>')
-        lines.append(f'        <mesh filename="{mesh_file}"/>')
-        lines.append('      </geometry>')
-        lines.append('      <origin xyz="0 0 0" rpy="0 0 0"/>')
-        lines.append('    </visual>')
+        for mesh_file in mesh_files:
+            lines.append('    <visual>')
+            lines.append('      <geometry>')
+            lines.append(f'        <mesh filename="{mesh_file}"/>')
+            lines.append('      </geometry>')
+            lines.append('      <origin xyz="0 0 0" rpy="0 0 0"/>')
+            lines.append('    </visual>')
         lines.append('  </link>')
         lines.append('')
 
@@ -159,7 +198,7 @@ def generate_urdf_content(
 def process_object_directory(
     object_dir: Path,
     verbose: bool = True,
-    mesh_map: Optional[Dict[str, str]] = None,
+    mesh_map: Optional[Dict[str, MeshMapValue]] = None,
     mesh_dir: Optional[Path] = None,
     mesh_pattern: str = "part_{index:02d}.glb",
     absolute_mesh_paths: bool = False,

@@ -12,13 +12,12 @@ Usage:
     python split_glb.py --input input/textured.glb --output output/
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 from pathlib import Path
 from typing import List, Tuple
-
-import numpy as np
-import trimesh
 
 
 def _safe_name(name: str) -> str:
@@ -31,6 +30,9 @@ def _ensure_rgba_vertex_colors(mesh: trimesh.Trimesh) -> trimesh.Trimesh:
     RGB vertex colors, which later fails with "cannot reshape ... into shape
     (4)". Keep geometry unchanged and only normalize color channel count.
     """
+    import numpy as np
+    import trimesh
+
     visual = getattr(mesh, "visual", None)
     colors = getattr(visual, "vertex_colors", None)
     if colors is None:
@@ -80,7 +82,15 @@ def _scene_parts(scene: trimesh.Scene) -> List[Tuple[str, str, trimesh.Trimesh]]
     return parts
 
 
-def split_glb(glb_path: str, output_dir: str):
+def _write_manifest(output_path: Path, manifest: list[dict]) -> Path:
+    manifest_path = output_path / "split_manifest.json"
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+    print(f"Saved split manifest to: {manifest_path}")
+    return manifest_path
+
+
+def split_glb(glb_path: str, output_dir: str) -> Path:
     """
     Split GLB file into separate files for each geometry/part.
 
@@ -88,17 +98,34 @@ def split_glb(glb_path: str, output_dir: str):
         glb_path: Path to input GLB file
         output_dir: Directory to save split GLB files
     """
+    import trimesh
+
     print(f"Loading GLB from: {glb_path}")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     scene = trimesh.load(glb_path)
 
     if isinstance(scene, trimesh.Trimesh):
         # Single mesh - save as is
         print("[WARN] GLB contains a single mesh (no separate parts)")
-        output_path = Path(output_dir) / "part_0.glb"
+        output_file = output_path / "part_0.glb"
         scene = _ensure_rgba_vertex_colors(scene.copy())
-        scene.export(str(output_path))
-        print(f"Saved single mesh to: {output_path}")
-        return
+        scene.export(str(output_file))
+        print(f"Saved single mesh to: {output_file}")
+        _write_manifest(
+            output_path,
+            [
+                {
+                    "index": 0,
+                    "node_name": "",
+                    "geometry_name": Path(glb_path).stem,
+                    "file": output_file.name,
+                    "vertices": int(len(scene.vertices)),
+                    "faces": int(len(scene.faces)),
+                }
+            ],
+        )
+        return output_path
 
     if not isinstance(scene, trimesh.Scene):
         raise ValueError(f"Unexpected GLB type: {type(scene)}")
@@ -112,10 +139,6 @@ def split_glb(glb_path: str, output_dir: str):
 
     if len(parts) == 0:
         raise ValueError("No geometries found in GLB")
-
-    # Create output directory
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
 
     # Save each part
     print(f"\nSaving parts to: {output_dir}")
@@ -137,12 +160,64 @@ def split_glb(glb_path: str, output_dir: str):
         })
         print(f"  Saved part {i} ({geometry_name}) to: {output_file.name}")
 
-    manifest_path = output_path / "split_manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-    print(f"Saved split manifest to: {manifest_path}")
+    _write_manifest(output_path, manifest)
 
     print(f"\n[DONE] Split {len(parts)} parts")
+    return output_path
+
+
+def _default_mesh_map_output(metadata_path: Path) -> Path:
+    return metadata_path.resolve().parent / "mesh_map.json"
+
+
+def _launch_mesh_map_gui(
+    metadata_path: Path,
+    split_dir: Path,
+    mesh_map_output: Path,
+    absolute_paths: bool,
+    host: str,
+    port: int,
+    share: bool,
+) -> None:
+    try:
+        from URDFoptimizer.render.mesh_map_gui import build_app
+    except ImportError:
+        from mesh_map_gui import build_app
+
+    app = build_app(
+        metadata_path=metadata_path,
+        split_dir=split_dir,
+        output_path=mesh_map_output,
+        absolute_paths=absolute_paths,
+    )
+    print(f"Launching mesh map GUI: http://{host}:{port}")
+    print(f"Mesh map output: {mesh_map_output}")
+    app.launch(server_name=host, server_port=port, share=share)
+
+
+def _launch_mesh_map_web(
+    metadata_path: Path,
+    split_dir: Path,
+    mesh_map_output: Path,
+    absolute_paths: bool,
+    host: str,
+    port: int,
+    viewer_script_url: str,
+) -> None:
+    try:
+        from URDFoptimizer.render.mesh_map_web import serve_app
+    except ImportError:
+        from mesh_map_web import serve_app
+
+    serve_app(
+        metadata_path=metadata_path,
+        split_dir=split_dir,
+        output_path=mesh_map_output,
+        absolute_paths=absolute_paths,
+        host=host,
+        port=port,
+        viewer_script_url=viewer_script_url,
+    )
 
 
 def main():
@@ -150,9 +225,52 @@ def main():
     parser.add_argument("--input", type=str, default="outputs/test4/voxel.glb", help="Path to input GLB file")
     parser.add_argument("--output", type=str, default="outputs/test4/glb",
                        help="Output directory for split GLB files")
+    parser.add_argument("--metadata", type=str, default=None, help="metadata.json containing the LLM-generated link graph")
+    parser.add_argument("--mesh-map-output", type=str, default=None, help="Path to write mesh_map.json")
+    parser.add_argument("--launch-web", action="store_true", help="Open the headless HTTP web mapper after splitting")
+    parser.add_argument("--launch-gui", action="store_true", help="Open the Gradio mapper after splitting")
+    parser.add_argument("--absolute-paths", action="store_true", help="Write absolute mesh paths from the mapper")
+    parser.add_argument("--host", default="0.0.0.0", help="Mapper host when --launch-web or --launch-gui is set")
+    parser.add_argument("--port", type=int, default=7860, help="Mapper port when --launch-web or --launch-gui is set")
+    parser.add_argument("--share", action="store_true", help="Enable Gradio share link when --launch-gui is set")
+    parser.add_argument(
+        "--viewer-script-url",
+        default="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js",
+        help="Browser GLB viewer script URL when --launch-web is set",
+    )
     args = parser.parse_args()
 
-    split_glb(args.input, args.output)
+    split_dir = split_glb(args.input, args.output)
+
+    if args.launch_web and args.launch_gui:
+        raise SystemExit("Use either --launch-web or --launch-gui, not both")
+
+    if args.launch_web or args.launch_gui:
+        if not args.metadata:
+            raise SystemExit("--metadata is required when launching the mapper")
+        metadata_path = Path(args.metadata)
+        mesh_map_output = Path(args.mesh_map_output) if args.mesh_map_output else _default_mesh_map_output(metadata_path)
+
+    if args.launch_web:
+        _launch_mesh_map_web(
+            metadata_path=metadata_path,
+            split_dir=split_dir,
+            mesh_map_output=mesh_map_output,
+            absolute_paths=args.absolute_paths,
+            host=args.host,
+            port=args.port,
+            viewer_script_url=args.viewer_script_url,
+        )
+    elif args.launch_gui:
+        _launch_mesh_map_gui(
+            metadata_path=metadata_path,
+            split_dir=split_dir,
+            mesh_map_output=mesh_map_output,
+            absolute_paths=args.absolute_paths,
+            host=args.host,
+            port=args.port,
+            share=args.share,
+        )
 
 
 if __name__ == "__main__":

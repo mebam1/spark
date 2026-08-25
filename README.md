@@ -162,12 +162,46 @@ Example `output/A_post_articulation/mesh_map.json`:
 The keys must match the labels in `output/A_post_articulation/metadata.json`.
 The paths are resolved relative to the generated URDF directory.
 
+To create that mapping visually, first generate the LLM link metadata:
+
+```bash
+sudo docker compose run --rm spark python VLMguidance/generate_json.py \
+  --input output/A_post_render/front_view.png \
+  --output output/A_post_articulation/metadata.json \
+  --csv VLMguidance/partnet-mobility-data-analysis.csv
+```
+
+Then open the split-mesh HTTP mapper on the server and connect to
+`http://<server-ip>:7860` from your browser. Each split GLB is shown in a 3D
+viewer and can be assigned to one LLM-predicted link. Assigning multiple GLBs to
+the same link writes a list in `mesh_map.json`, and `generate_urdf.py` treats
+that list as one rigid link with multiple visual meshes.
+
+```bash
+sudo docker compose run --rm -p 7860:7860 spark python URDFoptimizer/render/mesh_map_web.py \
+  --metadata output/A_post_articulation/metadata.json \
+  --split-dir output/A_post_parts \
+  --output output/A_post_articulation/mesh_map.json
+```
+
+You can also launch the same GUI immediately after splitting:
+
+```bash
+sudo docker compose run --rm -p 7860:7860 spark python URDFoptimizer/render/split_glb.py \
+  --input assets/A_post.glb \
+  --output output/A_post_parts \
+  --metadata output/A_post_articulation/metadata.json \
+  --mesh-map-output output/A_post_articulation/mesh_map.json \
+  --launch-web
+```
+
 Run the articulation-only pipeline:
 
 ```bash
 sudo docker compose run --rm spark python run_articulation.py \
   --image output/A_post_render/front_view.png \
   --output-dir output/A_post_articulation \
+  --skip-vlm-structure \
   --mesh-map output/A_post_articulation/mesh_map.json \
   --camera-y 1 \
   --target-y 1 \

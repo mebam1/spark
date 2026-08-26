@@ -191,6 +191,18 @@ docker compose run --rm -p 7860:7860 spark python URDFoptimizer/render/mesh_map_
     --port 7860
 ```
 
+`A_post.glb`처럼 이미 조립된 object-space GLB에서 split한 mesh는, articulation 실행 전에
+저장된 `mesh_map.json`을 기준으로 URDF link-local zero-pose frame으로 다시 export합니다.
+
+```bash
+docker compose run --rm spark python URDFoptimizer/render/split_glb.py \
+    --input assets/A_post.glb \
+    --output output/A_post_parts \
+    --metadata output/A_post_articulation/metadata.json \
+    --mesh-map output/A_post_articulation/mesh_map.json \
+    --link-local
+```
+
 split 직후 바로 HTTP mapper를 띄울 수도 있습니다.
 
 ```bash

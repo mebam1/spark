@@ -184,6 +184,18 @@ sudo docker compose run --rm -p 7860:7860 spark python URDFoptimizer/render/mesh
   --output output/A_post_articulation/mesh_map.json
 ```
 
+If the split GLBs came from an already assembled object-space GLB, rewrite them
+into their assigned URDF link-local zero-pose frames before running articulation:
+
+```bash
+sudo docker compose run --rm spark python URDFoptimizer/render/split_glb.py \
+  --input assets/A_post.glb \
+  --output output/A_post_parts \
+  --metadata output/A_post_articulation/metadata.json \
+  --mesh-map output/A_post_articulation/mesh_map.json \
+  --link-local
+```
+
 You can also launch the same GUI immediately after splitting:
 
 ```bash
